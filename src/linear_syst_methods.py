@@ -9,6 +9,7 @@ Python 3
 """
 
 # ----------------------------- logging --------------------------
+import numpy as np
 import logging
 from sys import stdout
 from datetime import datetime
@@ -96,9 +97,10 @@ def eliminacion_gaussiana(A: np.ndarray) -> np.ndarray:
 
 
 # ####################################################################
-def descomposicion_LU(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """Realiza la descomposición LU de una matriz cuadrada A.
-    [IMPORTANTE] No se realiza pivoteo.
+
+def descomposicion_LU(A: np.ndarray) -> tuple[np.ndarray, np.ndarray, float]:
+    """Realiza la descomposición LU de una matriz cuadrada A y calcula su determinante.
+    [IMPORTANTE] Se realiza pivoteo parcial.
 
     ## Parameters
 
@@ -109,6 +111,8 @@ def descomposicion_LU(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     ``L``: matriz triangular inferior.
 
     ``U``: matriz triangular superior. Se obtiene de la matriz ``A`` después de aplicar la eliminación gaussiana.
+
+    ``detA``: determinante de la matriz A.
     """
 
     A = np.array(
@@ -119,27 +123,30 @@ def descomposicion_LU(A: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     n = A.shape[0]
 
     L = np.zeros((n, n), dtype=float)
+    U = np.copy(A)
+    P = np.eye(n)  # Matriz de permutación
 
-    for i in range(0, n):  # loop por columna
+    for i in range(n):
+        # Pivoteo parcial
+        max_row = np.argmax(np.abs(U[i:, i])) + i
+        if i != max_row:
+            U[[i, max_row]] = U[[max_row, i]]
+            P[[i, max_row]] = P[[max_row, i]]
+            if i > 0:
+                L[[i, max_row], :i] = L[[max_row, i], :i]
 
-        # --- deterimnar pivote
-        if A[i, i] == 0:
-            raise ValueError("No existe solución única.")
+        if U[i, i] == 0:
+            raise ValueError("La matriz es singular y no se puede descomponer.")
 
-        # --- Eliminación: loop por fila
         L[i, i] = 1
-        for j in range(i + 1, n):
-            m = A[j, i] / A[i, i]
-            A[j, i:] = A[j, i:] - m * A[i, i:]
+        for j in range(i+1, n):
+            factor = U[j, i] / U[i, i]
+            L[j, i] = factor
+            U[j, i:] -= factor * U[i, i:]
 
-            L[j, i] = m
+    detA = np.prod(np.diag(U)) * np.linalg.det(P)
 
-        logging.info(f"\n{A}")
-
-    if A[n - 1, n - 1] == 0:
-        raise ValueError("No existe solución única.")
-
-    return L, A
+    return L, U, detA
 
 
 # ####################################################################
