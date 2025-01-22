@@ -115,9 +115,7 @@ def descomposicion_LU(A: np.ndarray) -> tuple[np.ndarray, np.ndarray, float]:
     ``detA``: determinante de la matriz A.
     """
 
-    A = np.array(
-        A, dtype=float
-    )  # convertir en float, porque si no, puede convertir como entero
+    A = np.array(A, dtype=float)  # convertir en float, porque si no, puede convertir como entero
 
     assert A.shape[0] == A.shape[1], "La matriz A debe ser cuadrada."
     n = A.shape[0]
@@ -139,7 +137,7 @@ def descomposicion_LU(A: np.ndarray) -> tuple[np.ndarray, np.ndarray, float]:
             raise ValueError("La matriz es singular y no se puede descomponer.")
 
         L[i, i] = 1
-        for j in range(i+1, n):
+        for j in range(i + 1, n):
             factor = U[j, i] / U[i, i]
             L[j, i] = factor
             U[j, i:] -= factor * U[i, i:]

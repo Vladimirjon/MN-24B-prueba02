@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 """
 Python 3
 17 / 07 / 2024
@@ -9,7 +8,6 @@ Python 3
 "I find that I don't understand things unless I try to program them."
 -Donald E. Knuth
 """
-
 
 # ----------------------------- logging --------------------------
 import logging
@@ -24,12 +22,9 @@ logging.basicConfig(
 )
 logging.info(datetime.now())
 
-import numpy as np
-
 from typing import Callable
 
 from src import eliminacion_gaussiana
-
 
 # ####################################################################
 def ajustar_min_cuadrados(
@@ -43,30 +38,18 @@ def ajustar_min_cuadrados(
     ## Parameters
 
     ``xs``: lista con los valores de x.
-
     ``ys``: lista con los valores de y.
-
-    ``gradiente``: lista con las funciones de derivadas parciales de ``fcn``.
-    [IMPORTANTE] Cada función debe ser de la forma ``der_parcial(xi, yi)->c_n * a_n + + c_(n-1)*a_(n-1) + ... + c_1*a_1 + c_0 * a_0 = c_ind``.
+    ``gradiente``: lista de funciones que representan las derivadas parciales del modelo.
 
     ## Return
 
-    ``params``: lista con los parámetros ajustados, e.g. (a_n, a_(n-1), ..., a_1, a_0).
-
+    ``params``: lista con los parámetros ajustados del modelo.
     """
-
-    assert len(xs) == len(ys), "xs y ys deben tener la misma longitud."
-
-    n = len(xs)
-
-    num_pars = len(gradiente)
-    logging.info(f"Se ajustarán {num_pars} parámetros.")
-    # --- construir matriz A y vector b
-    Ab = np.zeros((num_pars, num_pars + 1), dtype=float)
+    n = len(gradiente)
+    Ab = np.zeros((n, n + 1))
 
     for i, der_parcial in enumerate(gradiente):
         assert callable(der_parcial), "Cada derivada parcial debe ser una función."
-
         Ab[i, :] = der_parcial(xs, ys)
 
     return list(eliminacion_gaussiana(Ab))
